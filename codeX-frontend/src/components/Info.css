@@ -1,0 +1,40 @@
+.info-container{
+    padding: 2rem;
+    max-width: 960px;
+    margin: 1rem auto;
+    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+}
+.info-container ul li {
+    font-weight: 550;
+}
+.info-container ul li span{
+    font-weight: 400;
+}
+.info-container h1{
+    font-size: 2rem;
+    color: #333333;
+    text-align: center;
+    margin-bottom: 0.5rem;
+}
+.info-container h2 {
+    font-size: 1.25rem;
+    color: #333333;
+    border-bottom: 2px solid #f0f0f0;
+    padding-bottom: 0.5rem;
+}
+.problems-table {
+    width: 100%;
+    border: 1px solid #dddddd;
+    border-collapse: collapse;
+    margin-top: 1.5rem;
+    text-align: center;
+}
+.problems-table th, .problems-table td {
+    padding: 0.75rem;
+    border: 1px solid #dddddd;
+
+}
+.problems-table th {
+    background-color: #f7f7f7;
+    font-weight: 600;
+}

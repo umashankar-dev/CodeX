@@ -1,0 +1,118 @@
+/* src/components/ProblemPage.css */
+.problem-page-container {
+  display: flex;
+  justify-content: center;
+  gap: 2rem;
+  padding: 2rem;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+---
+.problem-statement {
+  flex: 1;
+  max-width: 650px;
+  background-color: #fff;
+  padding: 1.5rem 2rem;
+  border-radius: 8px;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.08);
+}
+
+.problem-statement h2, .problem-statement h3 {
+  color: #333;
+  border-bottom: 2px solid #f0f0f0;
+  padding-bottom: 0.5rem;
+  margin-top: 1.5rem;
+}
+
+.problem-statement h2:first-child {
+  margin-top: 0;
+}
+
+.problem-statement pre {
+  background-color: #f7f7f7;
+  padding: 1rem;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  color: #333;
+}
+
+---
+.code-editor-container {
+  flex: 1;
+  max-width: 650px;
+}
+
+.code-editor-container form {
+  display: flex;
+  flex-direction: column;
+}
+
+.code-editor-container label {
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+}
+
+.code-editor-container select {
+  padding: 0.6rem;
+  margin-bottom: 1rem;
+  border-radius: 4px;
+  border: 1px solid #ccc;
+  font-size: 1rem;
+}
+
+.code-editor {
+  width: 100%;
+  height: 50vh; /* Make it taller */
+  min-height: 300px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  padding: 1rem;
+  box-sizing: border-box;
+  font-family: 'Courier New', Courier, monospace;
+  font-size: 1rem;
+  resize: vertical;
+}
+
+.submit-code-btn {
+  margin-top: 1rem;
+  padding: 0.8rem 1.5rem;
+  background-color: #28a745;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 1rem;
+  font-weight: bold;
+  transition: background-color 0.2s;
+}
+
+.submit-code-btn:hover {
+  background-color: #218838;
+}
+
+---
+.output-container {
+  margin-top: 2rem;
+  background-color: #2d3748; /* Dark background */
+  color: #f7fafc; /* Light text */
+  border: 1px solid #4a5568;
+  border-radius: 4px;
+  padding: 1.5rem;
+  font-family: 'Courier New', Courier, monospace;
+}
+
+.output-container h3 {
+  margin-top: 0;
+  color: #a0aec0; /* Lighter heading color */
+  border-bottom: 1px solid #4a5568;
+  padding-bottom: 0.5rem;
+}
+
+.output-container pre {
+  white-space: pre-wrap;
+  word-wrap: break-word;
+}

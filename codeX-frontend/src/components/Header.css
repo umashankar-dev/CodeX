@@ -1,0 +1,40 @@
+.header-left {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0rem 1.5rem;
+  background-color: #2c3e50;
+  height: 60;
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+}
+.logo-link img{
+  width: 60%;
+  height: 60%;
+  margin: 10;
+}
+.cur-teamname,.nav-link, .signin-link{
+  margin: 0 1rem;
+  text-decoration: none;
+  color: #bdc3c7;
+  margin: 0 0.75rem;
+  font-size: 0.9rem;
+}
+.logout-btn{
+  background: none;
+  border: none;
+  text-decoration: none;
+  color: #bdc3c7;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 0.9rem;
+}
+.logout-btn:hover{
+  color: #ffffff;
+}
+.nav-link:hover, .signin-link:hover {
+  color: #ffffff;
+}
+.header-right, .header-left {
+  display: flex;
+  align-items: center;
+}
