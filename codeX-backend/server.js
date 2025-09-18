@@ -6,6 +6,12 @@ const axios = require('axios');
 const cors = require("cors");
 require('dotenv').config();
 const app = express();
+
+const Team = require('./models/Team');
+const Contest = require('./models/Contest');
+const Problem = require('./models/Problem')
+const Submission = require('./models/Submission')
+
 const PORT = process.env.PORT;
 const DB_URI = process.env.MONGO_URI;
 const JWT_SECRET = process.env.JWT_SECRET;
@@ -16,19 +22,6 @@ app.use(cors())
 mongoose.connect(DB_URI).then(
 	()=>console.log("connection successful")).catch(
 	(err)=>console.error(err,"connection failed"))
-
-const teamSchema = new mongoose.Schema({
-	teamname:{
-		type:String,
-		required:true,
-		unique:true
-	},
-	password:{
-		type:String,
-		required:true,
-	}
-});
-const Team = mongoose.model('Team',teamSchema);
 
 
 app.post('/api/register', async (req,res)=>{
@@ -91,40 +84,6 @@ app.post('/api/login', async (req,res) => {
 		res.status(500).json({message:error})
 	}
 })
-
-const submissionSchema = new mongoose.Schema({
-	teamId: {
-		type: mongoose.Schema.Types.ObjectId,
-		ref: 'Team',
-		required: true,
-	},
-	problemId: {
-		type: String,
-		required: true,
-	},
-	code: {
-		type: String,
-		required: true,
-	},
-	languageId: {
-		type: String,
-		required: true,
-	},
-	status: {
-		type: String,
-		enum: ['Pending','Accepted','Wrong Answer','Time limit Exceeded','Compilation Error'],
-		default: 'Pending',
-	},
-	penaltyAttempts: {
-		type: Number,
-		default: 0,
-	},
-	judge0Token: {
-		type: String,
-	},
-});
-
-const Submission = mongoose.model('Submission',submissionSchema);
 
 const auth = (req, res , next) => {
 	const token = req.header('x-auth-token'); //getting token from header
