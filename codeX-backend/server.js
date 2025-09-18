@@ -63,11 +63,11 @@ app.post('/api/login', async (req,res) => {
 
 		const team = await Team.findOne({teamname});
 		if (!team) {
-			return res.status(404).send('Team not found.')
+			return res.status(404).json({message:'Team not found.'})
 		}
 		const isMatch = await bcyrpt.compare(password, team.password);
 		if (!isMatch) {
-			return res.status(401).send('Incorrect password')
+			return res.status(401).json({message:'Incorrect password'})
 		}
 		const payload = {
 			team: {
@@ -76,7 +76,7 @@ app.post('/api/login', async (req,res) => {
 			}
 		};
 
-		 //move this to env file and import from it
+		
 		jwt.sign(
 			payload,
 			JWT_SECRET,
@@ -88,7 +88,7 @@ app.post('/api/login', async (req,res) => {
 		)
 
 	} catch(error) {
-		res.status(500).send(error)
+		res.status(500).json({message:error})
 	}
 })
 
@@ -115,9 +115,9 @@ const submissionSchema = new mongoose.Schema({
 		enum: ['Pending','Accepted','Wrong Answer','Time limit Exceeded','Compilation Error'],
 		default: 'Pending',
 	},
-	submittedAt: {
-		type: Date,
-		default: Date.now,
+	penaltyAttempts: {
+		type: Number,
+		default: 0,
 	},
 	judge0Token: {
 		type: String,
@@ -159,7 +159,7 @@ app.post('/api/submit', auth, async (req,res) => {
 			code,
 			languageId,
 			judge0Token: judge0Token,
-			status: 'Pending'
+			status: 'Pending',
 		})
 
 		await newSubmission.save();
@@ -170,8 +170,7 @@ app.post('/api/submit', auth, async (req,res) => {
 			judge0Token: judge0Token 
 		});
 	} catch (error) {
-		console.log('Error during submission',error)
-		res.status(500).send('Server error during submission')
+		res.status(500).json({message:'Server error during submission'})
 	}
 })
 app.get('/api/status/:submissionId',auth, async (req,res) => {
@@ -179,7 +178,7 @@ app.get('/api/status/:submissionId',auth, async (req,res) => {
 		const submission = await Submission.findById(req.params.submissionId);
 
 		if (!submission) {
-			return res.status(404).send('Submission not found')
+			return res.status(404).json({message:'Submission not found'})
 		}
 
 		if (!submission.judge0Token) {
@@ -205,10 +204,10 @@ app.get('/api/status/:submissionId',auth, async (req,res) => {
 
 	} catch (error) {
 		console.error('Error fetching status:', error);
-		res.status(500).send('Error fetching submission status.');
+		res.status(500).json({message:'Error fetching submission status.'});
 	}
 })
-app.get('/api/scoreboard/:contestId', async (req, res) => {
+app.get('/api/scoreboard/:contestId', auth, async (req, res) => {
 	try {
 		const { contestId } = req.params;
 		// fetch the contest start time from a Contest model.
@@ -275,7 +274,7 @@ app.get('/api/scoreboard/:contestId', async (req, res) => {
 
 	} catch (error) {
 		console.error("Error generating scoreboard:", error);
-		res.status(500).send("Server error.");
+		res.status(500).json({message:"Server error."});
 		}
 	});
 
