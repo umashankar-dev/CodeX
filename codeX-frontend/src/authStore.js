@@ -19,12 +19,14 @@ const useAuthStore = create ((set) => ({
 
     login: (token) => {
         localStorage.setItem('x-auth-token',token);
-         const decoded = jwtDecode(token);
-         set({team: decoded.team});
+        setAuthHeader(token);
+        const decoded = jwtDecode(token);
+        set({team: decoded.team});
     },
 
     logout: () => {
         localStorage.removeItem('x-auth-token');
+        setAuthHeader(null);
         set({team:null})
     },
 
@@ -34,6 +36,7 @@ const useAuthStore = create ((set) => ({
             try {
                 const decoded = jwtDecode(token);
                 if (decoded.exp * 1000 > Date.now()) {
+                    setAuthHeader(token);
                     set({team: decoded.team});
                 } else {
                     localStorage.removeItem('x-auth-token');

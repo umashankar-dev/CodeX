@@ -26,10 +26,10 @@ const Register = () => {
                 navigate('/login')
                 
             } catch(error) {
-                if (error){
-                    setStatus(`Error while registering, Please try again!`)
+                if (error.response.status === 409){
+                    setStatus(`${error.response.data.message}!`)
                 } else {
-                    setStatus(`${error.response.data.message}, Please try again!`)
+                    setStatus(`Error while registering, Please try again!`)
                 }
                 
             }

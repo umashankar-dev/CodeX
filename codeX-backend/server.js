@@ -15,6 +15,7 @@ const Submission = require('./models/Submission')
 const PORT = process.env.PORT;
 const DB_URI = process.env.MONGO_URI;
 const JWT_SECRET = process.env.JWT_SECRET;
+const JUDGE0_API_URL = process.env.JUDGE0_API_URL;
 
 app.use(express.json())
 app.use(cors())
@@ -34,10 +35,14 @@ app.post('/api/register', async (req,res)=>{
 		}
 		const salt = await bcyrpt.genSalt(10);
 		const hashedPassword = await bcyrpt.hash(password,salt);
+		//first acc is 'admin' by default and rest are 'users'
+		const isFirstAccount = (await Team.countDocuments()) === 0;  //change to teamname === 'admin'
+		const role = (isFirstAccount || teamname === 'admin') ? 'admin' : 'user'; 
 
 		const newTeam = new Team({
 			teamname: teamname,
-			password: hashedPassword
+			password: hashedPassword,
+			role: role,
 		});
 
 		await newTeam.save();
@@ -65,15 +70,15 @@ app.post('/api/login', async (req,res) => {
 		const payload = {
 			team: {
 				id: team.id,
-				teamname: team.teamname
+				teamname: team.teamname,
+				role: team.role,
 			}
 		};
-
 		
 		jwt.sign(
 			payload,
 			JWT_SECRET,
-			{expiresIn:'1m'}, //later change this to '3h' or '3.5hrs'
+			{expiresIn:'3.1hrs'}, //later change this to '3h' or '3.5hrs'
 			(err, token) => {
 				if (err) throw err;
 				res.json({token})
@@ -100,13 +105,63 @@ const auth = (req, res , next) => {
 		res.status(401).json({message:'Token is not valid'})
 	}
 }
+//admin auth middleware
+const adminAuth = (req, res, next) => {
+	auth(req, res, () => {
+		if (req.team.role !== 'admin') {
+			return res.status(403).json({ message: 'Forbidden: Admin access required.' });
+        }
+		next();
+	});
+}
 
+app.post('/api/contest/create', adminAuth, async (req, res) => {
+	try {
+		const {name, startTime, duration} = req.body;
+		const newContest = new Contest({
+			name: name,
+			startTime:startTime,
+			duration:duration,
+		});
+		await newContest.save();
+		res.status(201).json(newContest);
+	} catch (error) {
+		res.status(500).json({message:'Error while creating contest',error:error})
+	}
+});
+
+app.post('/api/contest/:contestId/add-problem', adminAuth, async (req, res) => {
+	try {
+		const {contestId} = req.params;
+		const {title, description, problemLetter, constraints, sampleInput, sampleOutput, hiddenTestCases} = req.body;
+		const newProblem = new Problem({
+			contestId,
+			title,
+			problemLetter,
+			description,
+			constraints,
+			sampleInput,
+			sampleOutput,
+			hiddenTestCases,
+		});
+		await newProblem.save();
+		await Contest.findByIdAndUpdate(
+			contestId,
+			{$push: {problems: newProblem._id}},
+			{new: true}); //returns updated values
+		res.status(201).json(newProblem)
+	} catch (error) {
+		res.status(500).json({message:'Error while adding the problem',error:error})
+	}
+})
+
+//User routes
 app.post('/api/submit', auth, async (req,res) => {
 	const {languageId, code, problemId } = req.body;
 	const teamId = req.team.id;
 
 	try {
-		const judge0Response = await axios.post(`${process.env.JUDGE0_API_URL}/submissions?base64_encoded=false&wait=false`,{
+		const judge0Response = await axios.post(`${JUDGE0_API_URL}/submissions?base64_encoded=false&wait=false`,{
 			source_code: code,
 			language_id: languageId,
 		});
@@ -144,7 +199,7 @@ app.get('/api/status/:submissionId',auth, async (req,res) => {
 			return res.json({status:submission.status,details: {}});
 		}
 		//fetching results
-		const judge0Response = await axios.get(`${process.env.JUDGE0_API_URL}/submissions/${submission.judge0Token}?base64_encoded=false`);
+		const judge0Response = await axios.get(`${JUDGE0_API_URL}/submissions/${submission.judge0Token}?base64_encoded=false`);
 		const statusId = judge0Response.data.status.id;
 
 		if (statusId === 1 || statusId === 2) {

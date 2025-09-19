@@ -8,6 +8,8 @@ import Login from './components/Login'
 import ProblemPage from './components/ProblemPage'
 import ContestPage from './components/ContestPage'
 import ProtectedRoute from './components/ProtectedRoute'
+import AdminRoute from './components/AdminRoute'
+import CreateContest from './components/CreateContest'
 
 function App() { 
   return (
@@ -33,6 +35,12 @@ function App() {
             } />
           <Route path='/register' element={<Register/>} />
           <Route path='/login' element={<Login />} />
+
+          <Route path='/create-contest' element={
+            <AdminRoute>
+              <CreateContest/>
+            </AdminRoute>
+          } />
         </Routes>
       </main>
     </>
