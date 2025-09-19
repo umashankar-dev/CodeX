@@ -1,5 +1,5 @@
 import { useParams, Link, Outlet } from 'react-router-dom';
-import './ContestPage.css';
+import '../styles/ContestPage.css';
 
 const contestData = {
   id: 'codelogik1',

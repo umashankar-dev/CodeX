@@ -1,4 +1,4 @@
-import './Header.css';
+import '../styles/Header.css';
 import { Link, useNavigate } from 'react-router-dom';
 import computeXLogo from '../assets/ComputeX-logo.png';
 import useAuthStore from '../authStore';

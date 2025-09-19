@@ -1,4 +1,4 @@
-import './Info.css'
+import '../styles/Info.css'
 
 const problems = [{pname:'A',pscore:100},{pname:'B',pscore:200},{pname:'C',pscore:300},
     {pname:'D',pscore:400},{pname:'E',pscore:500},{pname:'F',pscore:750}]

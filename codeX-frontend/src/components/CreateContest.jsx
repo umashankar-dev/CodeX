@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { apiClient } from "../authStore";
-import './CreateContest.css';
+import '../styles/CreateContest.css';
 
 const CreateContest = () => {
 
