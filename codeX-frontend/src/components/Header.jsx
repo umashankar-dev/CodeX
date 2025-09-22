@@ -25,7 +25,12 @@ const Header = () => {
                 <Link className='nav-link' to={"/contest"}>Contests</Link>
                 <Link className='nav-link' to={"/scoreboard"}>Scoreboard</Link>
                 {team && team.role === 'admin' && (
-                    <Link className='nav-link' to={"/create-contest"}>Create Contest</Link>
+                    <>
+                        <Link className='nav-link' to={"/create-contest"}>Create Contest</Link>
+                        <Link className='nav-link' to={"/contest/:contestId/add-problem"}>Add Problem</Link>
+                    </>
+                    
+                    
                 )}
             </nav>
             <div className="header-right">

@@ -1,0 +1,88 @@
+.add-problem-form {
+    background: #fff;
+    padding: 2rem;
+    border-radius: 8px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    width: 100%;
+    max-width: 850px;
+    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+.add-problem-form h2 {
+    text-align: center;
+}
+.add-problem-form .form-row {
+    display: flex;
+    gap: 1rem;
+    width: 100%;
+}
+.add-problem-form .form-row .form-group {
+    flex: 1;
+}
+.add-problem-form textarea {
+    min-height: 100px;
+    resize: vertical;
+    width:98%;
+    font:inherit;
+    font-size: 1rem;
+}
+.test-cases-fieldset {
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    padding: 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+.test-cases-fieldset legend {
+    padding: 0 0.5rem;
+    font-weight: bold;
+    color: #333;
+}
+.test-case-group {
+    border: 1px solid #e0e0e0;
+    border-radius: 6px;
+    padding: 1rem;
+    position: relative;
+    background-color: #f9f9f9;
+}
+.test-case-label {
+    font-weight: bold;
+    color: #555;
+    margin-top: 0;
+}
+.add-btn, .remove-btn {
+    padding: 0.5rem 1rem;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: bold;
+}
+.add-btn {
+    background-color: #28a745;
+    color: white;
+    align-self: flex-start;
+}
+.remove-btn {
+    background-color: #dc3545;
+    color: white;
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+}
+.submit-btn {
+    width: 100%;
+    padding: 0.85rem;
+    border: none;
+    border-radius: 4px;
+    color: #ffffff;
+    background-color: #2c3e50;
+    font-size: 1rem;
+    cursor: pointer;
+    margin-top: 1rem;
+}
+.submit-btn:hover {
+    background-color: #34495e;
+}

@@ -10,6 +10,7 @@ import ContestPage from './components/ContestPage'
 import ProtectedRoute from './components/ProtectedRoute'
 import AdminRoute from './components/AdminRoute'
 import CreateContest from './components/CreateContest'
+import AddProblem from './components/AddProblem'
 
 function App() { 
   return (
@@ -39,6 +40,11 @@ function App() {
           <Route path='/create-contest' element={
             <AdminRoute>
               <CreateContest/>
+            </AdminRoute>
+          } />
+          <Route path='/contest/:contestId/add-problem' element={
+            <AdminRoute>
+              <AddProblem/>
             </AdminRoute>
           } />
         </Routes>

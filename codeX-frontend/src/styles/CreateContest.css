@@ -1,50 +1,74 @@
-.form-container{
+.form-container {
     display: flex;
     justify-content: center;
     align-items: center;
-    padding: 3rem 0;
+    padding: 3rem 1rem;
     font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
 }
-.create-contest-form{
+
+.create-contest-form {
     padding: 2rem;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
     border-radius: 8px;
     background-color: #ffffff;
     width: 100%;
-    max-width: 600px; 
+    max-width: 600px;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
 }
-.create-contest-form h2{
-    text-align:center;
-    margin-bottom:1.5rem;
+
+.create-contest-form h2 {
+    text-align: center;
+    margin-bottom: 1.5rem;
     color: #333;
 }
-.error-message{
-    color: red;
+
+.error-message {
+    color: #e74c3c;
+    background-color: #fdd;
+    border: 1px solid #e74c3c;
+    padding: 0.75rem;
+    border-radius: 4px;
     text-align: center;
-}
-.success-message{
-    color: green;
-    text-align: center;
-}
-.form-group{
     margin-bottom: 1rem;
 }
-.form-group label{
+
+.success-message {
+    color: #27ae60;
+    background-color: #e8f8f5;
+    border: 1px solid #27ae60;
+    padding: 0.75rem;
+    border-radius: 4px;
+    text-align: center;
+    margin-bottom: 1rem;
+}
+
+.form-group {
+    margin-bottom: 1rem;
+}
+
+.form-group label {
     display: block;
     margin-bottom: 0.5rem;
     font-weight: 500;
     color: #555;
 }
-.form-group input{
+
+.form-group input {
     width: 100%;
     padding: 0.75rem;
-    border: 1px solid #333;
+    border: 1px solid #ccc; 
     border-radius: 4px;
     box-sizing: border-box;
+    font-family: inherit;
+    font-size: 1rem;
+    flex: 1;
 }
+
 .submit-btn {
     width: 100%;
-    padding: 0.75rem;
+    padding: 0.85rem;
     border: none;
     border-radius: 4px;
     color: #ffffff;
@@ -53,6 +77,7 @@
     cursor: pointer;
     margin-top: 1rem;
 }
-.submit-btn:hover{
+
+.submit-btn:hover {
     background-color: #34495e;
 }
