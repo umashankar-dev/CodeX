@@ -23,7 +23,10 @@ const Register = () => {
                         "password": password
                     });
                 setStatus('Your account is created!')
-                navigate('/login')
+                setTimeout( () => {
+                    navigate('/login');
+                },1500)
+                
                 
             } catch(error) {
                 if (error.response.status === 409){
@@ -40,10 +43,8 @@ const Register = () => {
         <div className='form-container'>
             <form className='register-form' onSubmit={handleSubmit}>
                 <h2>Create Account</h2>
-                {status=="Your account is created!" ? (
-                    <p className='acc-created-message'>{status}</p>
-                ) : (
-                    <p className='error-message'>{status}</p>
+                {status && ( 
+                    <p className= {status==="Your account is created!" ? 'acc-created-message': 'error-message'} >{status}</p>
                 ) }
                 <div className='form-group'>
                     <label htmlFor='Teamname'>Teamname</label>
