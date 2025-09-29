@@ -18,9 +18,7 @@ const formatDateTime = (isoString) => {
 
 const formatDuration = (minutes) => {
     if (isNaN(minutes)) return 'N/A';
-    const h = Math.floor(minutes / 60);
-    const m = minutes % 60;
-    return `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`;
+    return `${minutes} minutes`;
 };
 
 const Info = () => {
@@ -42,7 +40,7 @@ const Info = () => {
             <h1>Contest Information</h1>
             
             {contests.map(contest => (
-                <div key={contest._id}>
+                <div className='contest-container' key={contest._id}>
                     <h2>{contest.name}</h2>
                     <ul>
                         <li>Start Time: <span>{formatDateTime(contest.startTime)}</span></li>

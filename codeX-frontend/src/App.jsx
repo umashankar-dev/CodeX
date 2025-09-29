@@ -18,7 +18,11 @@ function App() {
       <Header />
       <main>
         <Routes>
-          <Route path='/' element={<Info/>} />
+          <Route path='/' element={
+            <ProtectedRoute>
+              <Info/>
+            </ProtectedRoute>
+            } />
           <Route path='/contest' element={
             <ProtectedRoute>
               <ContentList/>
