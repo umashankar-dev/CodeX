@@ -40,6 +40,10 @@ const problemSchema = new mongoose.Schema({
             required:true,
         }
     }],
+    score:{
+        type: Number,
+        required:true,
+    },
 });
 problemSchema.index({ contestId: 1, problemLetter: 1 }, { unique: true });
 const Problem = mongoose.model('Problem',problemSchema);

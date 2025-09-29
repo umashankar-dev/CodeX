@@ -1,36 +1,75 @@
-import '../styles/Info.css'
+import '../styles/Info.css';
+import {apiClient} from '../authStore';
+import { useState, useEffect } from 'react';
 
-const problems = [{pname:'A',pscore:100},{pname:'B',pscore:200},{pname:'C',pscore:300},
-    {pname:'D',pscore:400},{pname:'E',pscore:500},{pname:'F',pscore:750}]
+const formatDateTime = (isoString) => {
+    if (!isoString) return 'N/A';
+    const date = new Date(isoString);
+    //local time
+    return date.toLocaleString('en-IN', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: true
+    });
+};
+
+const formatDuration = (minutes) => {
+    if (isNaN(minutes)) return 'N/A';
+    const h = Math.floor(minutes / 60);
+    const m = minutes % 60;
+    return `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`;
+};
 
 const Info = () => {
+    const [contests, setContests] = useState([]);
+    useEffect(()=> {
+        const fetchContests = async () => {
+            try {
+                const res = await apiClient(`/api/contest/`);
+                setContests(res.data);
+            } catch (error) {
+                console.log('Error while fetching contests',error)
+            }
+        };
+        fetchContests();
+    },[]);
+
     return (
         <div className='info-container'>
-            <h1>CodeLogik</h1>
-            <h2>Contest Information</h2>
-            <ul>
-                <li>Duration: <span>180 mintues</span></li>
-                <li>Participation: <span>1 - 3 members per team</span></li>
-                <li>Problems: <span>6</span></li>
-                <li>Start Time: <span>15:00 - 18:00 IST</span></li>
-            </ul>
-            <h2>Point Values</h2>
-            <table className='problems-table'>
-                <thead>
-                    <tr>
-                        <th>Problems</th>
-                        <th>Score</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {problems.map(problem => (
-                        <tr key={problem.pname}>
-                            <td>{problem.pname}</td>
-                            <td>{problem.pscore}</td>
-                        </tr>
-                    ))}
-                </tbody>
-            </table>
+            <h1>Contest Information</h1>
+            
+            {contests.map(contest => (
+                <div key={contest._id}>
+                    <h2>{contest.name}</h2>
+                    <ul>
+                        <li>Start Time: <span>{formatDateTime(contest.startTime)}</span></li>
+                        <li>Duration: <span>{formatDuration(contest.duration)}</span></li>
+                        <li>Participation: <span>1 - 3 members per team</span></li>
+                        <li>Problems: <span>{contest.problems.length}</span></li>
+                        
+                    </ul>
+                    <h2>Point Values</h2>
+                    <table className='problems-table'>
+                        <thead>
+                            <tr>
+                                <th>Problems</th>
+                                <th>Score</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {contest.problems.map(problem => (
+                                <tr key={problem._id}>
+                                    <td>{problem.problemLetter}</td>
+                                    <td>{problem.score}</td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>                
+                </div>
+            ))}
         </div>
     );
 };

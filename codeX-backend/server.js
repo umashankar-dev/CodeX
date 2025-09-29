@@ -133,7 +133,7 @@ app.post('/api/contest/create', adminAuth, async (req, res) => {
 app.post('/api/contest/:contestId/add-problem', adminAuth, async (req, res) => {
 	try {
 		const {contestId} = req.params;
-		const {title, description, problemLetter, constraints, sampleInput, sampleOutput, hiddenTestCases} = req.body;
+		const {title, description, problemLetter, constraints, sampleInput, sampleOutput, hiddenTestCases, score} = req.body;
 		const newProblem = new Problem({
 			contestId,
 			title,
@@ -143,6 +143,7 @@ app.post('/api/contest/:contestId/add-problem', adminAuth, async (req, res) => {
 			sampleInput,
 			sampleOutput,
 			hiddenTestCases,
+			score
 		});
 		await newProblem.save();
 		await Contest.findByIdAndUpdate(
@@ -156,6 +157,43 @@ app.post('/api/contest/:contestId/add-problem', adminAuth, async (req, res) => {
 })
 
 //User routes
+app.get('/api/contest',auth, async (req, res) => {
+	try {
+		const contests = await Contest.find({}).populate('problems').sort({ startTime: -1 });
+		res.json(contests)
+	} catch (error) {
+		res.status(500).json({ message: 'Server error while fetching contests' });
+	}
+})
+app.get('/api/contest/:contestId', auth, async (req, res) => {
+    try {
+        const contest = await Contest.findById(req.params.contestId)
+            .populate('problems', '-hiddenTestCases'); 
+
+        if (!contest) {
+            return res.status(404).json({ message: 'Contest not found' });
+        }
+
+        res.json(contest);
+    } catch (error) {
+        res.status(500).json({ message: 'Server error while fetching contest details' });
+    }
+});
+
+app.get('/api/problem/:problemId', auth, async (req, res) => {
+    try {
+        const problem = await Problem.findById(req.params.problemId).select('-hiddenTestCases');
+
+        if (!problem) {
+            return res.status(404).json({ message: 'Problem not found' });
+        }
+
+        res.json(problem);
+    } catch (error) {
+        res.status(500).json({ message: 'Server error while fetching problem details' });
+    }
+});
+
 app.post('/api/submit', auth, async (req,res) => {
 	const {languageId, code, problemId } = req.body;
 	const teamId = req.team.id;
@@ -223,64 +261,63 @@ app.get('/api/status/:submissionId',auth, async (req,res) => {
 })
 app.get('/api/scoreboard/:contestId', auth, async (req, res) => {
 	try {
-		const { contestId } = req.params;
-		// fetch the contest start time from a Contest model.
-		// assume time
-		const contestStartTime = new Date('2025-09-12T19:30:00Z');
+		const contest = await Contest.findById(contestId).populate('problems');
+		if (!contest) {
+			return res.status(404).json({ message: 'Contest not found' });
+		}
+
+		const contestStartTime = new Date(contest.startTime);
 		const PENALTY_MINUTES = 10;
 
-		// 1. Fetch all submissions sorted by time
-		const submissions = await Submission.find({ problemId: { $regex: `^${contestId}-` } })
-			.populate('teamId', 'teamname') // Fetch the teamname from the User model
+		const submissions = await Submission.find({ problemId: { $in: contest.problems.map(p => p._id) } })
+			.populate('teamId', 'teamname')
 			.sort({ submittedAt: 'asc' });
 
 		const teamScores = {};
 
-		// 2. Process each submission
 		for (const sub of submissions) {
 			if (!sub.teamId) continue;
 			const teamId = sub.teamId._id.toString();
-			const problemId = sub.problemId;
+			const problemId = sub.problemId.toString();
 
-			// Initialize team if they are not in the scores object yet
 			if (!teamScores[teamId]) {
 				teamScores[teamId] = {
 					teamname: sub.teamId.teamname,
 					problemsSolved: 0,
+					totalScore: 0,
 					totalTime: 0,
-					solvedProblems: {}, // Tracks solved problems to avoid double counting
-					penaltyAttempts: {}, // Tracks wrong attempts per problem
+					solvedProblems: {},
+					penaltyAttempts: {},
 				};
 			}
 			
 			const team = teamScores[teamId];
 
-			// If this problem is already solved, skip this submission
 			if (team.solvedProblems[problemId]) {
 				continue;
 			}
 
 			if (sub.status === 'Accepted') {
-				const timeToSolve = (sub.submittedAt - contestStartTime) / (1000 * 60); // in minutes
+				const problem = contest.problems.find(p => p._id.toString() === problemId);
+				if (!problem) continue;
+
+				const timeToSolve = (sub.submittedAt - contestStartTime) / (1000 * 60);
 				const penalty = (team.penaltyAttempts[problemId] || 0) * PENALTY_MINUTES;
 
 				team.problemsSolved++;
+				team.totalScore += problem.score;
 				team.totalTime += timeToSolve + penalty;
 				team.solvedProblems[problemId] = true;
 
 			} else {
-			// Increment penalty attempts for this problem
 				team.penaltyAttempts[problemId] = (team.penaltyAttempts[problemId] || 0) + 1;
 			}
 		}
 
-		// 3. Convert the scores object to an array and rank it
 		const rankedScoreboard = Object.values(teamScores).sort((a, b) => {
-			// Sort by problems solved (descending)
-			if (b.problemsSolved !== a.problemsSolved) {
-				return b.problemsSolved - a.problemsSolved;
+			if (b.totalScore !== a.totalScore) {
+				return b.totalScore - a.totalScore;
 			}
-			// If problems solved are equal, sort by total time (ascending)
 			return a.totalTime - b.totalTime;
 		});
 
