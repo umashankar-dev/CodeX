@@ -15,7 +15,7 @@ const CreateContest = () => {
         setError('');
         setSuccess('');
         try {
-            const response = await apiClient.post('api/contest/create',{
+            const response = await apiClient.post('/api/contests',{
                 name,
                 startTime,
                 duration,

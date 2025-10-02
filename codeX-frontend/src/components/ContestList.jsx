@@ -1,11 +1,36 @@
 import "../styles/ContestList.css";
 import { Link } from 'react-router-dom';
+import { apiClient } from "../authStore";
+import { useState , useEffect} from "react";
 
-const contests = [
-  { id: 'codelogik1', name: 'Codelogik', 
-    startTime: '16-10-2025 15:00', duration: '03:00' }
-];
+const formatDateTime = (isoString) => {
+    if (!isoString) return 'N/A';
+    const date = new Date(isoString);
+    const pad = (num) => String(num).padStart(2, '0');
+
+    const year = date.getFullYear();
+    const month = pad(date.getMonth() + 1);
+    const dayOfMonth = pad(date.getDate());
+    const hours = pad(date.getHours());
+    const minutes = pad(date.getMinutes());
+
+    return `${year}-${month}-${dayOfMonth} ${hours}:${minutes}`;
+};
+
 const ContestList = () => {
+    const [contests, setContests] = useState([]);
+    useEffect(()=> {
+        const fetchContests = async () => {
+            try {
+                const res = await apiClient(`/api/contests`);
+                setContests(res.data);
+            } catch (error) {
+                console.log('Error while fetching contests',error)
+            }
+        };
+        fetchContests();
+    },[]);
+
     return (
         <div className="contest-list-container">
             <h2>Contests</h2>
@@ -20,9 +45,9 @@ const ContestList = () => {
                 <tbody>
                 {contests.map(contest => (
                     <tr key={contest.id}>
-                    <td>{contest.startTime}</td>
-                    <td><Link className="contest-link" to={`/contest/${contest.id}`}>{contest.name}</Link></td>
-                    <td>{contest.duration}</td>
+                    <td>{formatDateTime(contest.startTime)}</td>
+                    <td><Link className="contest-link" to={`/contests/${contest._id}`}>{contest.name}</Link></td>
+                    <td>{contest.duration} minutes</td>
                     </tr>
                 ))}
                 </tbody>

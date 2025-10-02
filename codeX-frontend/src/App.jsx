@@ -23,17 +23,17 @@ function App() {
               <Info/>
             </ProtectedRoute>
             } />
-          <Route path='/contest' element={
+          <Route path='/contests' element={
             <ProtectedRoute>
               <ContentList/>
             </ProtectedRoute>
             } />
-          <Route path='/contest/:contestId' element={
+          <Route path='/contests/:contestId' element={
             <ProtectedRoute>
               <ContestPage/>
             </ProtectedRoute>
             }/>
-          <Route path='/contest/:contestId/problem/:problemId' element={
+          <Route path='/contests/:contestId/problems/:problemId' element={
             <ProtectedRoute>
               <ProblemPage/>
             </ProtectedRoute>            
@@ -46,7 +46,7 @@ function App() {
               <CreateContest/>
             </AdminRoute>
           } />
-          <Route path='/contest/:contestId/add-problem' element={
+          <Route path='/add-problem' element={
             <AdminRoute>
               <AddProblem/>
             </AdminRoute>

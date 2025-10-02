@@ -5,11 +5,11 @@ const AdminRoute = ({children}) => {
     const team = useAuthStore((state) => state.team)
 
     if (!team) {
-        <Navigate to={'/login'} replace/>
+        return <Navigate to={'/login'} replace/>
     }
 
     if (team.role !== 'admin') {
-        <Navigate to={'/'} replace />
+        return <Navigate to={'/'} replace />
     }
     return children
 };

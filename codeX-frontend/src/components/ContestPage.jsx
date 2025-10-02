@@ -32,10 +32,10 @@ const ContestPage = () => {
                 {contestData.problems.map((problem) => (
                     <tr key={problem.id}>
                     <td>
-                        <Link to={`/contest/${contestId}/problem/${problem.id}`}>{problem.id}</Link>
+                        <Link to={`/contests/${contestId}/problems/${problem.id}`}>{problem.id}</Link>
                     </td>
                     <td>
-                        <Link to={`/contest/${contestId}/problem/${problem.id}`}>{problem.title}</Link>
+                        <Link to={`/contests/${contestId}/problems/${problem.id}`}>{problem.title}</Link>
                     </td>
                     <td>{problem.timeLimit}</td>
                     <td>{problem.memoryLimit}</td>

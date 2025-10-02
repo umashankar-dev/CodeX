@@ -22,12 +22,12 @@ const Header = () => {
             </div>
             <nav className="main-nav">
                 <Link className='nav-link' to={"/"}>Home</Link>
-                <Link className='nav-link' to={"/contest"}>Contests</Link>
+                <Link className='nav-link' to={"/contests"}>Contests</Link>
                 <Link className='nav-link' to={"/scoreboard"}>Scoreboard</Link>
                 {team && team.role === 'admin' && (
                     <>
                         <Link className='nav-link' to={"/create-contest"}>Create Contest</Link>
-                        <Link className='nav-link' to={"/contest/:contestId/add-problem"}>Add Problem</Link>
+                        <Link className='nav-link' to={"/add-problem"}>Add Problem</Link>
                     </>
                     
                     

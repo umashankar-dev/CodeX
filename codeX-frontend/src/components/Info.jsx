@@ -26,7 +26,7 @@ const Info = () => {
     useEffect(()=> {
         const fetchContests = async () => {
             try {
-                const res = await apiClient(`/api/contest/`);
+                const res = await apiClient(`/api/contests`);
                 setContests(res.data);
             } catch (error) {
                 console.log('Error while fetching contests',error)

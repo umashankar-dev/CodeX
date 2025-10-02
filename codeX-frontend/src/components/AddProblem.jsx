@@ -1,11 +1,12 @@
 import '../styles/AddProblem.css';
 import { apiClient } from '../authStore';
-import { useState } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 const AddProblem = () => {
-    const {contestId} = useParams();
     const navigate = useNavigate();
+    const [contests, setContests] = useState([]);
+    const [selectedContest, setSelectedContest] = useState('');
     const [error, setError] = useState('');
     const [success, setSuccess] = useState('');
     const [problemLetter, setProblemLetter] = useState('');
@@ -14,7 +15,20 @@ const AddProblem = () => {
     const [constraints, setConstraints] = useState('');
     const [sampleInput, setSampleInput] = useState('');
     const [sampleOutput, setSampleOutput] = useState('');
-    const [hiddenTestCases, setHiddenTestCases] = useState([{input:'', output:''}])
+    const [hiddenTestCases, setHiddenTestCases] = useState([{input:'', output:''}]);
+    const [score, setScore] = useState(0);
+
+    useEffect(() => {
+        const fetchContests = async () => {
+            try {
+                const response = await apiClient.get('/api/contests');
+                setContests(response.data)
+            } catch (error) {
+                setError(error)
+            }
+        };
+        fetchContests();
+    },[])
 
     const handleTestCaseChange = (index, field, value) => {
         const newTestCases = [...hiddenTestCases];
@@ -35,9 +49,13 @@ const AddProblem = () => {
         setError('');
         setSuccess('');
 
+        if (!selectedContest) {
+            setError('Please select a contest!')
+            return;
+        }
+
         try {
-            const response = await apiClient.post('/api/contest/:contestId/',{
-                contestId,
+            const response = await apiClient.post(`/api/contests/${selectedContest}/problems`,{
                 problemLetter,
                 title,
                 description,
@@ -45,9 +63,10 @@ const AddProblem = () => {
                 sampleInput,
                 sampleOutput,
                 hiddenTestCases,
+                score,
             });
             setSuccess(`Problem ${response.data.title} added successfully!`)
-            setTimeout(()=>navigate(`/api/contest/${contestId}`),2000)
+            setTimeout(()=>navigate(`/contests/${selectedContest}`),2000)
 
         } catch (error) {
             setError(error.response?.data?.message || 'Failed to add problem')
@@ -60,10 +79,28 @@ const AddProblem = () => {
                 <h2>Add Problem</h2>
                 {error && <p className='error-message'>{error}</p>}
                 {success && <p className='success-message'>{success}</p>}
+                <div className='form-group'>
+                    <label htmlFor='contest-select'>Select Contest</label>
+                    <select 
+                        id='contest-select'
+                        value={selectedContest}
+                        onChange={(e)=> setSelectedContest(e.target.value)}
+                        required
+                    >
+                        <option value="" disabled>Please select a Contest</option>
+                        {contests.map((contest) => (
+                            <option key={contest._id} value={contest._id}>{contest.name}</option>
+                        ))}
+                    </select>
+                </div>
                 <div className='form-row'>
                     <div className='form-group'>
                         <label htmlFor='problemLetter' >Problem Letter (in CAPS)</label>
                         <input id='problemLetter' type='text' value={problemLetter} onChange={(e)=>setProblemLetter(e.target.value)} required/>
+                    </div>
+                    <div className='form-group'>
+                        <label htmlFor='score' >Score</label>
+                        <input id='score' type='number' min={0} value={score} onChange={(e)=>setScore(e.target.value)} required/>
                     </div>
                     <div className='form-group'>
                         <label htmlFor='title' >Title</label>

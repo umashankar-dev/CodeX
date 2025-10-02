@@ -115,7 +115,7 @@ const adminAuth = (req, res, next) => {
 	});
 }
 
-app.post('/api/contest/create', adminAuth, async (req, res) => {
+app.post('/api/contests', adminAuth, async (req, res) => {
 	try {
 		const {name, startTime, duration} = req.body;
 		const newContest = new Contest({
@@ -130,10 +130,10 @@ app.post('/api/contest/create', adminAuth, async (req, res) => {
 	}
 });
 
-app.post('/api/contest/:contestId/add-problem', adminAuth, async (req, res) => {
+app.post('api/contests/:contestId/problems', adminAuth, async (req, res) => {
 	try {
-		const {contestId} = req.params;
-		const {title, description, problemLetter, constraints, sampleInput, sampleOutput, hiddenTestCases, score} = req.body;
+		const contestId = req.params();
+		const { title, description, problemLetter, constraints, sampleInput, sampleOutput, hiddenTestCases, score} = req.body;
 		const newProblem = new Problem({
 			contestId,
 			title,
@@ -157,7 +157,7 @@ app.post('/api/contest/:contestId/add-problem', adminAuth, async (req, res) => {
 })
 
 //User routes
-app.get('/api/contest',auth, async (req, res) => {
+app.get('/api/contests',auth, async (req, res) => {
 	try {
 		const contests = await Contest.find({}).populate('problems').sort({ startTime: -1 });
 		res.json(contests)
@@ -165,7 +165,7 @@ app.get('/api/contest',auth, async (req, res) => {
 		res.status(500).json({ message: 'Server error while fetching contests' });
 	}
 })
-app.get('/api/contest/:contestId', auth, async (req, res) => {
+app.get('/api/contests/:contestId', auth, async (req, res) => {
     try {
         const contest = await Contest.findById(req.params.contestId)
             .populate('problems', '-hiddenTestCases'); 
@@ -180,7 +180,7 @@ app.get('/api/contest/:contestId', auth, async (req, res) => {
     }
 });
 
-app.get('/api/problem/:problemId', auth, async (req, res) => {
+app.get('/api/problems/:problemId', auth, async (req, res) => {
     try {
         const problem = await Problem.findById(req.params.problemId).select('-hiddenTestCases');
 
@@ -225,7 +225,7 @@ app.post('/api/submit', auth, async (req,res) => {
 		res.status(500).json({message:'Server error during submission'})
 	}
 })
-app.get('/api/status/:submissionId',auth, async (req,res) => {
+app.get('/api/submissions/:submissionId',auth, async (req,res) => {
 	try {
 		const submission = await Submission.findById(req.params.submissionId);
 
@@ -261,6 +261,7 @@ app.get('/api/status/:submissionId',auth, async (req,res) => {
 })
 app.get('/api/scoreboard/:contestId', auth, async (req, res) => {
 	try {
+		const contestId = req.params();
 		const contest = await Contest.findById(contestId).populate('problems');
 		if (!contest) {
 			return res.status(404).json({ message: 'Contest not found' });
