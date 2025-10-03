@@ -55,13 +55,16 @@ const ProblemPage = () => {
 						<li key={index}>{constraint}</li>
 					))}
 				</ul>
-				<h3>Sample Input 1</h3>
-				<pre>{problem.sampleInput}</pre>
-				<h3>Sample Output 1</h3>
-				<pre>{problem.sampleOutput}</pre>
+				{problem.sampleTestCases && problem.sampleTestCases.map((testcase, index) => (
+					<div key={index}>
+						<h3>Sample Input {index+1}</h3>
+						<pre>{testcase.input}</pre>
+						<h3>Sample Output {index+1}</h3>
+						<pre>{testcase.output}</pre>
+					</div>
+				))}
 			</div>	
 		)}
-
 
 		<div className="code-editor-container">
 			<form onSubmit={handleSubmit}>

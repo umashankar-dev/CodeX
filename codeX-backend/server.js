@@ -78,7 +78,7 @@ app.post('/api/login', async (req,res) => {
 		jwt.sign(
 			payload,
 			JWT_SECRET,
-			{expiresIn:'3.1hrs'}, //later change this to '3h' or '3.5hrs'
+			{expiresIn:'3.5hrs'}, //later change this to '3h' or '3.5hrs'
 			(err, token) => {
 				if (err) throw err;
 				res.json({token})
@@ -133,15 +133,14 @@ app.post('/api/contests', adminAuth, async (req, res) => {
 app.post('/api/contests/:contestId/problems', adminAuth, async (req, res) => {
 	try {
 		const {contestId} = req.params;
-		const { title, description, problemLetter, constraints, sampleInput, sampleOutput, hiddenTestCases, score} = req.body;
+		const { title, description, problemLetter, constraints, sampleTestCases, hiddenTestCases, score} = req.body;
 		const newProblem = new Problem({
 			contestId,
 			title,
 			problemLetter,
 			description,
 			constraints,
-			sampleInput,
-			sampleOutput,
+			sampleTestCases,
 			hiddenTestCases,
 			score
 		});

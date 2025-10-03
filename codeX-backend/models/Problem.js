@@ -22,14 +22,16 @@ const problemSchema = new mongoose.Schema({
         type:String,
         required:true,
     },
-    sampleInput:{
-        type:String,
-        required:true,
-    },
-    sampleOutput:{
-        type:String,
-        required:true,
-    },
+    sampleTestCases:[{
+        input:{
+            type:String,
+            required:true,
+        },
+        output:{
+            type:String,
+            required:true,
+        }
+    }],
     hiddenTestCases:[{
         input:{
             type:String,

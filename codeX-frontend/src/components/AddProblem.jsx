@@ -13,8 +13,7 @@ const AddProblem = () => {
     const [title, setTitle] = useState('');
     const [description, setDescription] = useState('');
     const [constraints, setConstraints] = useState('');
-    const [sampleInput, setSampleInput] = useState('');
-    const [sampleOutput, setSampleOutput] = useState('');
+    const [sampleTestCases, setSampleTestCases] = useState([{input:'', output:''}]);
     const [hiddenTestCases, setHiddenTestCases] = useState([{input:'', output:''}]);
     const [score, setScore] = useState(0);
 
@@ -30,6 +29,22 @@ const AddProblem = () => {
         fetchContests();
     },[])
 
+    //Sample Test Cases
+    const handleSampleTestCaseChange = (index, field, value) => {
+        const newSampleTestCases = [...sampleTestCases];
+        newSampleTestCases[index][field] = value;
+        setSampleTestCases(newSampleTestCases);
+    };
+
+    const addSampleTestCase = () => {
+        setSampleTestCases([...sampleTestCases, { input: '', output: '' }]);
+    };
+
+    const removeSampleTestCase = (index) => {
+        setSampleTestCases(sampleTestCases.filter((_, i) => i !== index));
+    };
+
+    //Hidden Test cases
     const handleTestCaseChange = (index, field, value) => {
         const newTestCases = [...hiddenTestCases];
         newTestCases[index][field] = value;
@@ -60,8 +75,7 @@ const AddProblem = () => {
                 title,
                 description,
                 constraints,
-                sampleInput,
-                sampleOutput,
+                sampleTestCases,
                 hiddenTestCases,
                 score,
             });
@@ -115,14 +129,24 @@ const AddProblem = () => {
                     <label htmlFor='constraints'>Constraints</label>
                     <textarea id='constraints' value={constraints} onChange={(e)=>setConstraints(e.target.value)} required/>
                 </div>
-                <div className='form-group'>
-                    <label htmlFor='sampleInput'>Sample Input</label>
-                    <textarea id='sampleInput' value={sampleInput} onChange={(e)=>setSampleInput(e.target.value)} required/>
-                </div>
-                <div className='form-group'>
-                    <label htmlFor='sampleOutput'>Sample Output</label>
-                    <textarea id='sampleOuput' value={sampleOutput} onChange={(e)=>setSampleOutput(e.target.value)} required/>
-                </div>
+                <fieldset className='test-cases-fieldset'>
+                    <legend>Sample Test Cases</legend>
+                    {sampleTestCases.map((sample, index) => (
+                        <div key={index} className='test-case-group'>
+                            <p className='test-case-label'>Sample Test Case #{index + 1}</p>
+                            <div className='form-group'>
+                                <label>Input</label>
+                                <textarea value={sample.input} onChange={(e) => handleSampleTestCaseChange(index, 'input', e.target.value)} required />
+                            </div>
+                            <div className='form-group'>
+                                <label>Output</label>
+                                <textarea value={sample.output} onChange={(e) => handleSampleTestCaseChange(index, 'output', e.target.value)} required />
+                            </div>
+                            <button type='button' className='remove-btn' onClick={() => removeSampleTestCase(index)}>Remove</button>
+                        </div>
+                    ))}
+                    <button type='button' className='add-btn' onClick={addSampleTestCase}>Add Sample Test Case</button>
+                </fieldset>
                 <fieldset className='test-cases-fieldset'>
                     <legend>Hidden Test Cases</legend>
                     {hiddenTestCases.map((testCase, index) => (
