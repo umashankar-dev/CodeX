@@ -38,13 +38,13 @@ const ContestPage = () => {
                 {problems.map((problem) => (
                     <tr key={problem._id}>
                     <td>
-                        <Link to={`/contests/${contestId}/problems/${problem.problemLetter}`}>{problem.problemLetter}</Link>
+                        <Link to={`/contests/${contestId}/problems/${problem._id}`}>{problem.problemLetter}</Link>
                     </td>
                     <td>
-                        <Link to={`/contests/${contestId}/problems/${problem.problemLetter}`}>{problem.title}</Link>
+                        <Link to={`/contests/${contestId}/problems/${problem._id}`}>{problem.title}</Link>
                     </td>
-                    <td>{2}</td>
-                    <td>{1024}</td>
+                    <td>{2} sec</td>
+                    <td>{1024} MB</td>
                     </tr>
                 ))}
                 </tbody>

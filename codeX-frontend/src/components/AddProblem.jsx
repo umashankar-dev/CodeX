@@ -113,15 +113,15 @@ const AddProblem = () => {
                 </div>
                 <div className='form-group'>
                     <label htmlFor='constraints'>Constraints</label>
-                    <input id='constraints' type='text' onChange={(e) => setConstraints(e.target.value)} required/>
+                    <textarea id='constraints' value={constraints} onChange={(e)=>setConstraints(e.target.value)} required/>
                 </div>
                 <div className='form-group'>
                     <label htmlFor='sampleInput'>Sample Input</label>
-                    <input id='sampleInput' type='text' onChange={(e)=>setSampleInput(e.target.value)} required/>
+                    <textarea id='sampleInput' value={sampleInput} onChange={(e)=>setSampleInput(e.target.value)} required/>
                 </div>
                 <div className='form-group'>
                     <label htmlFor='sampleOutput'>Sample Output</label>
-                    <input id='sampleOutput' type='text' onChange={(e)=>setSampleOutput(e.target.value)} required/>
+                    <textarea id='sampleOuput' value={sampleOutput} onChange={(e)=>setSampleOutput(e.target.value)} required/>
                 </div>
                 <fieldset className='test-cases-fieldset'>
                     <legend>Hidden Test Cases</legend>
@@ -145,7 +145,6 @@ const AddProblem = () => {
             </form>
         </div>
     )
-
 }
 
 export default AddProblem;
