@@ -130,9 +130,9 @@ app.post('/api/contests', adminAuth, async (req, res) => {
 	}
 });
 
-app.post('api/contests/:contestId/problems', adminAuth, async (req, res) => {
+app.post('/api/contests/:contestId/problems', adminAuth, async (req, res) => {
 	try {
-		const contestId = req.params();
+		const {contestId} = req.params;
 		const { title, description, problemLetter, constraints, sampleInput, sampleOutput, hiddenTestCases, score} = req.body;
 		const newProblem = new Problem({
 			contestId,
@@ -180,7 +180,23 @@ app.get('/api/contests/:contestId', auth, async (req, res) => {
     }
 });
 
-app.get('/api/problems/:problemId', auth, async (req, res) => {
+app.get('/api/contests/:contestId/problems/', auth, async (req, res) => {
+    try {
+		const {contestId} = req.params;
+		const problems = await Problem.find({contestId:contestId}).select('-hiddenTestCases')
+		
+
+        if (!problems) {
+            return res.status(404).json({ message: 'No problems found' });
+        }
+
+        res.json(problems);
+    } catch (error) {
+        res.status(500).json({ message: 'Server error while fetching problem details' });
+    }
+});
+
+app.get('/api/contests/:contestId/problems/:problemId', auth, async (req, res) => {
     try {
         const problem = await Problem.findById(req.params.problemId).select('-hiddenTestCases');
 

@@ -1,24 +1,30 @@
 import { useParams, Link, Outlet } from 'react-router-dom';
 import '../styles/ContestPage.css';
+import { useState, useEffect } from 'react';
+import { apiClient } from '../authStore';
 
-const contestData = {
-  id: 'codelogik1',
-  title: 'Codelogik',
-  problems: [
-    { id: 'A', title: 'Potions', timeLimit: '2s', memoryLimit: '1024MB' },
-    { id: 'B', title: 'MissingNo.', timeLimit: '2s', memoryLimit: '1024MB' },
-    { id: 'C', title: 'Ideal Holidays', timeLimit: '2s', memoryLimit: '1024MB' },
-    { id: 'D', title: 'President', timeLimit: '2s', memoryLimit: '1024MB' },
-    { id: 'E', title: 'Avoid Eye Contact', timeLimit: '4s', memoryLimit: '1024MB' },
-    { id: 'F', title: 'Eradication', timeLimit: '2s', memoryLimit: '1024MB' },
-  ]
-};
 
 const ContestPage = () => {
+    const [problems, setProblems] = useState([]);
+    const [contest, setContest] = useState({});
     const { contestId } = useParams();
+    
+    useEffect(()=>{
+        const fetchContests = async () => {
+            try {
+                setContest((await apiClient.get(`/api/contests/${contestId}`)).data)
+                const response = await apiClient.get(`/api/contests/${contestId}/problems`);
+                setProblems(response.data)
+            } catch (error) {
+                console.log('Error while fetching problems',error)
+            }
+        }
+        fetchContests();
+    },[contestId]);
+    
     return (
         <div className="contest-page-container">
-            <h1>{contestData.title}</h1>
+            <h1>{contest.name}</h1>
             <table className="problems-table">
                 <thead>
                 <tr>
@@ -29,16 +35,16 @@ const ContestPage = () => {
                 </tr>
                 </thead>
                 <tbody>
-                {contestData.problems.map((problem) => (
-                    <tr key={problem.id}>
+                {problems.map((problem) => (
+                    <tr key={problem._id}>
                     <td>
-                        <Link to={`/contests/${contestId}/problems/${problem.id}`}>{problem.id}</Link>
+                        <Link to={`/contests/${contestId}/problems/${problem.problemLetter}`}>{problem.problemLetter}</Link>
                     </td>
                     <td>
-                        <Link to={`/contests/${contestId}/problems/${problem.id}`}>{problem.title}</Link>
+                        <Link to={`/contests/${contestId}/problems/${problem.problemLetter}`}>{problem.title}</Link>
                     </td>
-                    <td>{problem.timeLimit}</td>
-                    <td>{problem.memoryLimit}</td>
+                    <td>{2}</td>
+                    <td>{1024}</td>
                     </tr>
                 ))}
                 </tbody>

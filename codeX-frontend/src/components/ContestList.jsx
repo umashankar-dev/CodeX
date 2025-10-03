@@ -44,7 +44,7 @@ const ContestList = () => {
                 </thead>
                 <tbody>
                 {contests.map(contest => (
-                    <tr key={contest.id}>
+                    <tr key={contest._id}>
                     <td>{formatDateTime(contest.startTime)}</td>
                     <td><Link className="contest-link" to={`/contests/${contest._id}`}>{contest.name}</Link></td>
                     <td>{contest.duration} minutes</td>
