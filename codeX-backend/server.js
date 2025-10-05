@@ -69,7 +69,7 @@ app.post('/api/login', async (req,res) => {
 		}
 		const payload = {
 			team: {
-				id: team.id,
+				id: team._id,
 				teamname: team.teamname,
 				role: team.role,
 			}
@@ -117,9 +117,10 @@ const adminAuth = (req, res, next) => {
 
 app.post('/api/contests', adminAuth, async (req, res) => {
 	try {
-		const {name, startTime, duration} = req.body;
+		const {name, startTime, contestKey, duration} = req.body;
 		const newContest = new Contest({
 			name: name,
+			contestKey: contestKey,
 			startTime:startTime,
 			duration:duration,
 		});
@@ -130,16 +131,19 @@ app.post('/api/contests', adminAuth, async (req, res) => {
 	}
 });
 
-app.post('/api/contests/:contestId/problems', adminAuth, async (req, res) => {
+app.post('/api/contests/:contestKey/problems', adminAuth, async (req, res) => {
 	try {
-		const {contestId} = req.params;
-		const { title, description, problemLetter, constraints, sampleTestCases, hiddenTestCases, score} = req.body;
+		const {contestKey} = req.params;
+		const { title, description, problemLetter, constraints, timeLimit, memoryLimit, sampleTestCases, hiddenTestCases, score} = req.body;
+		const contestId = await Contest.findOne({contestKey:contestKey});
 		const newProblem = new Problem({
 			contestId,
 			title,
 			problemLetter,
 			description,
 			constraints,
+			timeLimit,
+			memoryLimit,
 			sampleTestCases,
 			hiddenTestCases,
 			score
@@ -164,9 +168,9 @@ app.get('/api/contests',auth, async (req, res) => {
 		res.status(500).json({ message: 'Server error while fetching contests' });
 	}
 })
-app.get('/api/contests/:contestId', auth, async (req, res) => {
+app.get('/api/contests/:contestKey', auth, async (req, res) => {
     try {
-        const contest = await Contest.findById(req.params.contestId)
+        const contest = await Contest.findOne({contestKey:req.params.contestKey})
             .populate('problems', '-hiddenTestCases'); 
 
         if (!contest) {
@@ -179,9 +183,10 @@ app.get('/api/contests/:contestId', auth, async (req, res) => {
     }
 });
 
-app.get('/api/contests/:contestId/problems/', auth, async (req, res) => {
+app.get('/api/contests/:contestKey/problems/', auth, async (req, res) => {
     try {
-		const {contestId} = req.params;
+		const {contestKey} = req.params;
+		const contestId = await Contest.findOne({contestKey:contestKey});
 		const problems = await Problem.find({contestId:contestId}).select('-hiddenTestCases')
 		
 
@@ -195,9 +200,9 @@ app.get('/api/contests/:contestId/problems/', auth, async (req, res) => {
     }
 });
 
-app.get('/api/contests/:contestId/problems/:problemId', auth, async (req, res) => {
+app.get('/api/contests/:contestKey/problems/:problemLetter', auth, async (req, res) => {
     try {
-        const problem = await Problem.findById(req.params.problemId).select('-hiddenTestCases');
+        const problem = await Problem.findOne({problemLetter:req.params.problemLetter}).select('-hiddenTestCases');
 
         if (!problem) {
             return res.status(404).json({ message: 'Problem not found' });
@@ -274,9 +279,10 @@ app.get('/api/submissions/:submissionId',auth, async (req,res) => {
 		res.status(500).json({message:'Error fetching submission status.'});
 	}
 })
-app.get('/api/scoreboard/:contestId', auth, async (req, res) => {
+app.get('/api/scoreboard/:contestKey', auth, async (req, res) => {
 	try {
-		const contestId = req.params();
+		const contestKey = req.params;
+		const contestId = await Contest.findOne({contestKey:contestKey})
 		const contest = await Contest.findById(contestId).populate('problems');
 		if (!contest) {
 			return res.status(404).json({ message: 'Contest not found' });

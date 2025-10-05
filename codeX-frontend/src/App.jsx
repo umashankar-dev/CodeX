@@ -28,12 +28,12 @@ function App() {
               <ContentList/>
             </ProtectedRoute>
             } />
-          <Route path='/contests/:contestId' element={
+          <Route path='/contests/:contestKey' element={
             <ProtectedRoute>
               <ContestPage/>
             </ProtectedRoute>
             }/>
-          <Route path='/contests/:contestId/problems/:problemId' element={
+          <Route path='/contests/:contestKey/problems/:problemLetter' element={
             <ProtectedRoute>
               <ProblemPage/>
             </ProtectedRoute>            

@@ -16,6 +16,8 @@ const AddProblem = () => {
     const [sampleTestCases, setSampleTestCases] = useState([{input:'', output:''}]);
     const [hiddenTestCases, setHiddenTestCases] = useState([{input:'', output:''}]);
     const [score, setScore] = useState(0);
+    const [timeLimit, setTimeLimit] = useState(2);
+    const [memoryLimit, setMemoryLimit] = useState(256);
 
     useEffect(() => {
         const fetchContests = async () => {
@@ -23,7 +25,7 @@ const AddProblem = () => {
                 const response = await apiClient.get('/api/contests');
                 setContests(response.data)
             } catch (error) {
-                setError(error)
+                setError(error.response?.data?.message || 'Failed to fetch contests')
             }
         };
         fetchContests();
@@ -75,6 +77,8 @@ const AddProblem = () => {
                 title,
                 description,
                 constraints,
+                timeLimit,
+                memoryLimit,
                 sampleTestCases,
                 hiddenTestCases,
                 score,
@@ -103,7 +107,7 @@ const AddProblem = () => {
                     >
                         <option value="" disabled>Please select a Contest</option>
                         {contests.map((contest) => (
-                            <option key={contest._id} value={contest._id}>{contest.name}</option>
+                            <option key={contest._id} value={contest.contestKey}>{contest.name}</option>
                         ))}
                     </select>
                 </div>
@@ -129,6 +133,16 @@ const AddProblem = () => {
                     <label htmlFor='constraints'>Constraints</label>
                     <textarea id='constraints' value={constraints} onChange={(e)=>setConstraints(e.target.value)} required/>
                 </div>
+                <div className='form-row'>
+                    <div className='form-group'>
+                        <label htmlFor='timeLimit' >Time Limit (in seconds)</label>
+                        <input id='timeLimit' type='number' min={0} value={timeLimit} onChange={(e)=>setTimeLimit(e.target.value)} required/>
+                    </div>
+                    <div className='form-group'>
+                        <label htmlFor='memoryLimit' >Memory Limit (in MB)</label>
+                        <input id='memoryLimit' type='number' min={0} value={memoryLimit} onChange={(e)=>setMemoryLimit(e.target.value)} required/>
+                    </div>
+                </div>                
                 <fieldset className='test-cases-fieldset'>
                     <legend>Sample Test Cases</legend>
                     {sampleTestCases.map((sample, index) => (

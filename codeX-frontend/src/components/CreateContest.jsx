@@ -5,6 +5,7 @@ import '../styles/CreateContest.css';
 const CreateContest = () => {
 
     const [name, setName] = useState('');
+    const [contestKey, setContestKey] = useState('');
     const [startTime, setStartTIme] = useState('');
     const [duration, setDuration] = useState(180);
     const [error, setError] = useState('');
@@ -17,6 +18,7 @@ const CreateContest = () => {
         try {
             const response = await apiClient.post('/api/contests',{
                 name,
+                contestKey,
                 startTime,
                 duration,
             })
@@ -36,6 +38,10 @@ const CreateContest = () => {
                     <label htmlFor="name">Contest Name</label>
                     <input id="name" type="text" value={name} onChange={(e)=>setName(e.target.value)} required/>
                 </div>
+                <div className="form-group">
+                    <label htmlFor="name">Contest Key (Unique Identifier)</label>
+                    <input id="key" type="text" value={contestKey} onChange={(e)=>setContestKey(e.target.value)} required/>
+                </div>                
                 <div className="form-group">
                     <label htmlFor="startTime">Start Time</label>
                     <input name="startTime" type="datetime-local" value={startTime} onChange={(e)=>setStartTIme(e.target.value)} required/>

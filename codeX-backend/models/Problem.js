@@ -22,6 +22,14 @@ const problemSchema = new mongoose.Schema({
         type:String,
         required:true,
     },
+    timeLimit:{
+        type:Number,
+        required:true,
+    },
+    memoryLimit:{
+        type:Number,
+        required:true,
+    },
     sampleTestCases:[{
         input:{
             type:String,

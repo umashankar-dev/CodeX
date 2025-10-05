@@ -6,6 +6,11 @@ const contestSchema = new mongoose.Schema({
         required: true,
         unique: true,
     },
+    contestKey:{
+        type:String,
+        required: true,
+        unique: true,
+    },
     startTime:{
         type:Date,
         required:true,

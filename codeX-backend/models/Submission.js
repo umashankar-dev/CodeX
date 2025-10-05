@@ -1,9 +1,8 @@
 const mongoose = require("mongoose");
 
 const submissionSchema = new mongoose.Schema({
-    teamId: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'Team',
+    teamname: {
+        type: String,
         required: true,
     },
     problemId: {
@@ -21,13 +20,25 @@ const submissionSchema = new mongoose.Schema({
     },
     status: {
         type: String,
-        enum: ['Pending','Accepted','Wrong Answer','Time limit Exceeded','Compilation Error'],
-        default: 'Pending',
+        default: 'In queue',
+    },
+    verdict: {
+        type: String,
+    },
+    executionTime: {
+        type: Number,
+    },
+    memory: {
+        type: Number,
+    },
+    submittedAt: {
+        type: Date,
+        default: Date.now
     },
     judge0Token: {
         type: String,
     },
-},{timestamps:true});
+},);
 
 const Submission = mongoose.model('Submission',submissionSchema);
 module.exports = Submission;

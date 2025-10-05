@@ -7,20 +7,20 @@ import { apiClient } from '../authStore';
 const ContestPage = () => {
     const [problems, setProblems] = useState([]);
     const [contest, setContest] = useState({});
-    const { contestId } = useParams();
+    const { contestKey } = useParams();
     
     useEffect(()=>{
         const fetchContests = async () => {
             try {
-                setContest((await apiClient.get(`/api/contests/${contestId}`)).data)
-                const response = await apiClient.get(`/api/contests/${contestId}/problems`);
+                setContest((await apiClient.get(`/api/contests/${contestKey}`)).data)
+                const response = await apiClient.get(`/api/contests/${contestKey}/problems`);
                 setProblems(response.data)
             } catch (error) {
                 console.log('Error while fetching problems',error)
             }
         }
         fetchContests();
-    },[contestId]);
+    },[contestKey]);
     
     return (
         <div className="contest-page-container">
@@ -38,13 +38,13 @@ const ContestPage = () => {
                 {problems.map((problem) => (
                     <tr key={problem._id}>
                     <td>
-                        <Link to={`/contests/${contestId}/problems/${problem._id}`}>{problem.problemLetter}</Link>
+                        <Link to={`/contests/${contestKey}/problems/${problem.problemLetter}`}>{problem.problemLetter}</Link>
                     </td>
                     <td>
-                        <Link to={`/contests/${contestId}/problems/${problem._id}`}>{problem.title}</Link>
+                        <Link to={`/contests/${contestKey}/problems/${problem.problemLetter}`}>{problem.title}</Link>
                     </td>
-                    <td>{2} sec</td>
-                    <td>{1024} MB</td>
+                    <td>{problem.timeLimit} sec</td>
+                    <td>{problem.memoryLimit} MB</td>
                     </tr>
                 ))}
                 </tbody>
