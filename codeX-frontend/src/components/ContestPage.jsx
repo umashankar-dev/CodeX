@@ -2,25 +2,46 @@ import { useParams, Link, Outlet } from 'react-router-dom';
 import '../styles/ContestPage.css';
 import { useState, useEffect } from 'react';
 import { apiClient } from '../authStore';
+import WaitingPage from "./WaitingPage";
 
 
 const ContestPage = () => {
     const [problems, setProblems] = useState([]);
-    const [contest, setContest] = useState({});
+    const [contest, setContest] = useState(null);
+    const [isLoading, setIsLoading] = useState(true);
     const { contestKey } = useParams();
     
     useEffect(()=>{
         const fetchContests = async () => {
+            setIsLoading(true);
             try {
-                setContest((await apiClient.get(`/api/contests/${contestKey}`)).data)
-                const response = await apiClient.get(`/api/contests/${contestKey}/problems`);
-                setProblems(response.data)
+                const contestRes = await apiClient.get(`/api/contests/${contestKey}`);
+                setContest(contestRes.data);
+                if (new Date() >= new Date(contestRes.data.startTime)) {
+                    const response = await apiClient.get(`/api/contests/${contestKey}/problems`);
+                    setProblems(response.data)
+                }
+                
             } catch (error) {
                 console.log('Error while fetching problems',error)
+            } finally {
+                setIsLoading(false);
             }
         }
         fetchContests();
     },[contestKey]);
+
+    if (isLoading) {
+        return <div className="contest-page-container"><p>Loading contest...</p></div>;
+    }
+
+    if (!contest) {
+         return <div className="contest-page-container"><p>Contest not found.</p></div>;
+    }
+
+    if (new Date() < new Date(contest.startTime)) {
+        return <WaitingPage contest={contest} />;
+    }
     
     return (
         <div className="contest-page-container">

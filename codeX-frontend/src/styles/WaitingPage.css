@@ -1,0 +1,34 @@
+.waiting-page-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+    padding: 40px;
+    margin-top: 50px;
+}
+.contest-title {
+    color: #333;
+    margin-bottom: 30px;
+}
+.countdown-container {
+    background-color: #ffffff;
+    padding: 30px;
+}
+.countdown-header {
+    color: #555;
+    font-size: 1.5em;
+    margin-bottom: 20px;
+}
+.timer {
+    font-size: 2.5em;
+    color: #446280;
+}
+.timer span {
+    margin: 0 10px;
+}
+.timer strong {
+    font-size: 1.2em;
+    margin-right: 5px;
+}

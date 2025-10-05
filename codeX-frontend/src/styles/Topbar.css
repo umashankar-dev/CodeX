@@ -1,0 +1,58 @@
+.problem-topbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.5rem 1.5rem;
+    background-color: #2c3e50;
+    color: #bdc3c7;
+    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+    position: sticky;
+    top: 0; 
+    z-index: 900;
+    border-bottom: 2px solid #34495e;
+    margin-bottom: 20px;
+}
+.problem-nav {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+.nav-arrow {
+    background-color: #34495e;
+    color: #ffffff;
+    border: none;
+    padding: 8px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    font-weight: 500;
+    transition: background-color 0.2s;
+}
+.nav-arrow:hover:not(:disabled) {
+    background-color: #4a627a;
+}
+.nav-arrow:disabled {
+    background-color: #2c3e50;
+    color: #7f8c8d;
+    cursor: not-allowed;
+}
+.problem-title-display {
+    font-size: 0.9rem;
+    font-weight: bold;
+    color: #ffffff;
+}
+.contest-timer {
+    font-size: 0.9rem;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+.timer-display {
+    background-color: #ffffff;
+    color: #333;
+    padding: 5px 10px;
+    border-radius: 4px;
+    font-weight: bold;
+    min-width: 90px;
+    text-align: center;
+}
