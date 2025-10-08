@@ -35,8 +35,8 @@ const submissionSchema = new mongoose.Schema({
         type: Date,
         default: Date.now
     },
-    judge0Token: {
-        type: String,
+    judge0Tokens: {
+        type: [String],
     },
 },);
 

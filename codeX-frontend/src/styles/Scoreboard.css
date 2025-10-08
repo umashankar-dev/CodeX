@@ -1,0 +1,71 @@
+.scoreboard-container {
+    padding: 2rem;
+    max-width: 1400px;
+    margin: 1rem auto;
+    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+}
+.scoreboard-container h2 {
+    font-size: 1.25rem;
+    color: #333333;
+    border-bottom: 2px solid #f0f0f0;
+    padding-bottom: 0.5rem;
+    text-align: left;
+}
+.contest-selector {
+    margin-top: 1.5rem;
+    margin-bottom: 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 1rem;
+}
+.contest-selector label {
+    font-weight: bold;
+    font-size: 1.1rem;
+}
+.contest-selector select {
+    padding: 0.5rem 1rem;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+    font-size: 1rem;
+    cursor: pointer;
+}
+.scoreboard-table {
+    width: 100%;
+    border: 1px solid #ddd;
+    border-collapse: collapse;
+    margin-top: 1.5rem;
+    text-align: center;
+}
+.scoreboard-table th,
+.scoreboard-table td {
+    padding: 0.75rem;
+    border: 1px solid #ddd;
+}
+.scoreboard-table thead th {
+    background-color: #f7f7f7;
+    font-weight: 600;
+    color: #333;
+}
+.cell-solved {
+    background-color: #d4edda;
+    color: #155724;
+    font-weight: bold;
+}
+.cell-attempted {
+    background-color: #f8d7da;
+    color: #721c24;
+    font-weight: bold;
+}
+.cell-unattempted {
+    color: #6c757d;
+}
+.attempts {
+    display: block;
+    font-size: 1rem;
+}
+.error-message {
+    color: #dc3545;
+    text-align: center;
+    font-weight: bold;
+}

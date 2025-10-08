@@ -202,7 +202,13 @@ app.get('/api/contests/:contestKey/problems/', auth, async (req, res) => {
 
 app.get('/api/contests/:contestKey/problems/:problemLetter', auth, async (req, res) => {
     try {
-        const problem = await Problem.findOne({problemLetter:req.params.problemLetter}).select('-hiddenTestCases');
+        const { contestKey, problemLetter } = req.params;
+        const contest = await Contest.findOne({ contestKey: contestKey });
+        if (!contest) {
+            return res.status(404).json({ message: 'Contest not found' });
+        }
+
+        const problem = await Problem.findOne({ contestId: contest._id, problemLetter: problemLetter }).select('-hiddenTestCases');
 
         if (!problem) {
             return res.status(404).json({ message: 'Problem not found' });
@@ -214,76 +220,186 @@ app.get('/api/contests/:contestKey/problems/:problemLetter', auth, async (req, r
     }
 });
 
-app.post('/api/submit', auth, async (req,res) => {
-	const {languageId, code, problemId } = req.body;
-	const teamId = req.team.id;
+//background process for submission
+const processSubmission = async (submissionId) => {
+    try {
+        const submission = await Submission.findById(submissionId);
+        if (!submission || !submission.judge0Tokens || submission.judge0Tokens.length === 0) {
+            console.log(`[Processor] Submission ${submissionId} already processed or invalid.`);
+            return;
+        }
 
-	try {
-		const judge0Response = await axios.post(`${JUDGE0_API_URL}/submissions?base64_encoded=false&wait=false`,{
-			source_code: code,
-			language_id: languageId,
-		});
-		const judge0Token = judge0Response.data.token;
+        console.log(`[Processor] Starting to process submission ${submissionId}`);
+        const tokens = submission.judge0Tokens.join(',');
+        
+        let isProcessing = true;
+        while (isProcessing) {
+            await new Promise(resolve => setTimeout(resolve, 2000));
 
-		const newSubmission = new Submission({
-			teamId,
-			problemId,
-			code,
-			languageId,
-			judge0Token: judge0Token,
-			status: 'Pending',
-		})
+            const judge0Response = await axios.get(
+                `${JUDGE0_API_URL}/submissions/batch?tokens=${tokens}&base64_encoded=true&fields=*`
+            );
+            const results = judge0Response.data.submissions;
 
-		await newSubmission.save();
+            
+            const stillProcessing = results.some(r => r.status.id === 1 || r.status.id === 2);
 
-		res.status(201).json({ 
-			message: "Submission received and is being processed.",
-			submissionId: newSubmission.id,
-			judge0Token: judge0Token 
-		});
-	} catch (error) {
-		res.status(500).json({message:'Server error during submission'})
-	}
-})
-app.get('/api/submissions/:submissionId',auth, async (req,res) => {
-	try {
-		const submission = await Submission.findById(req.params.submissionId);
+            if (!stillProcessing) {
+                isProcessing = false;
+                
+                // final verdict
+                let finalVerdict = 'Accepted';
+                let maxTime = 0;
+                let maxMemory = 0;
+                let testCasesPassed = 0;
 
-		if (!submission) {
-			return res.status(404).json({message:'Submission not found'})
-		}
+                for (const result of results) {
+                    maxTime = Math.max(maxTime, parseFloat(result.time || 0));
+                    maxMemory = Math.max(maxMemory, result.memory || 0);
+                    if (result.status.id === 3) {
+                        testCasesPassed++;
+                    } else {
+                        if (finalVerdict === 'Accepted') {
+                            finalVerdict = result.status.description;
+                        }
+                    }
+                }
+                submission.status = finalVerdict;
+                submission.verdict = finalVerdict;
+                submission.executionTime = maxTime;
+                submission.memory = maxMemory;
+                submission.testCasesPassed = testCasesPassed;
+                submission.totalTestCases = results.length;
+                submission.judge0Tokens = [];
+                await submission.save();
+                console.log(`[Processor] Finished processing submission ${submissionId}. Verdict: ${finalVerdict}`);
+            }
+        }
+    } catch (error) {
+        console.error(`[Processor] Error processing submission ${submissionId}:`, error);
+        await Submission.findByIdAndUpdate(submissionId, {
+            status: 'Internal Server Error',
+            verdict: 'Internal Server Error',
+            judge0Tokens: []
+        });
+    }
+};
 
-		if (!submission.judge0Token) {
-			return res.json({status:submission.status,details: {}});
-		}
-		//fetching results
-		const judge0Response = await axios.get(`${JUDGE0_API_URL}/submissions/${submission.judge0Token}?base64_encoded=false`);
-		const statusId = judge0Response.data.status.id;
+app.post('/api/submit', auth, async (req, res) => {
+    const { languageId, code, problemId } = req.body;
+    const teamname = req.team.teamname;
 
-		if (statusId === 1 || statusId === 2) {
-			const currentStatus = judge0Response.data.status.description;
-			submission.status = currentStatus;
-			await submission.save();
-			return res.json({status: currentStatus, details: judge0Response.data});
-		}
+    try {
+        if (!code || !languageId || !problemId) {
+            return res.status(400).json({ message: "Missing required fields: code, languageId, or problemId" });
+        }
 
-		const finalStatus = judge0Response.data.status.description;
-		submission.status = finalStatus;
-		submission.judge0Token = null;
-		await submission.save();
+        const problem = await Problem.findById(problemId);
+        if (!problem) {
+            return res.status(404).json({ message: "Problem not found." });
+        }
 
-		res.json({status:finalStatus,details:judge0Response.data});
+        if (!problem.hiddenTestCases || problem.hiddenTestCases.length === 0) {
+            return res.status(400).json({ message: "This problem has no hidden test cases and cannot be judged." });
+        }
 
-	} catch (error) {
-		console.error('Error fetching status:', error);
-		res.status(500).json({message:'Error fetching submission status.'});
-	}
-})
+        const submissions = problem.hiddenTestCases.map(testCase => ({
+            language_id: parseInt(languageId),
+            source_code: Buffer.from(code).toString('base64'),
+            stdin: Buffer.from(testCase.input).toString('base64'),
+            expected_output: Buffer.from(testCase.output).toString('base64'),
+            cpu_time_limit: problem.timeLimit,
+            memory_limit: problem.memoryLimit * 1024,
+        }));
+
+        const judge0Response = await axios.post(
+            `${JUDGE0_API_URL}/submissions/batch?base64_encoded=true`,
+            { submissions: submissions },
+            { headers: { 'Content-Type': 'application/json' } }
+        );
+
+        const judge0Tokens = judge0Response.data.map(s => s.token);
+
+        const newSubmission = new Submission({
+            teamname,
+            problemId,
+            code,
+            languageId: parseInt(languageId),
+            judge0Tokens: judge0Tokens,
+            status: 'In Queue',
+            verdict: 'In Queue',
+        });
+
+        await newSubmission.save();
+
+        processSubmission(newSubmission._id);
+
+        res.status(201).json({
+            message: "Submission received and is being processed.",
+            submissionId: newSubmission._id,
+        });
+
+    } catch (error) {
+        if (error.response) {
+            console.error("Error from Judge0:", error.response.data);
+        } else {
+            console.error("Error Message:", error.message);
+        }
+        res.status(500).json({
+            message: 'Server error during submission.',
+            error: error.message
+        });
+    }
+});
+
+app.get('/api/submissions/:submissionId', auth, async (req, res) => {
+    try {
+        const submission = await Submission.findById(req.params.submissionId);
+
+        if (!submission) {
+            return res.status(404).json({ message: 'Submission not found' });
+        }
+        
+        return res.json({
+            status: submission.verdict,
+            details: {
+                status: { description: submission.verdict },
+                time: submission.executionTime,
+                memory: submission.memory,
+            },
+            testCasesPassed: submission.testCasesPassed,
+            totalTestCases: submission.totalTestCases
+        });
+
+    } catch (error) {
+        console.error('Error fetching submission status:', error);
+        res.status(500).json({ message: 'Error fetching submission status.' });
+    }
+});
+
+app.get('/api/submissions', auth, async (req, res) => {
+    try {
+        const submissions = await Submission.find({})
+            .populate({
+                path: 'problemId',
+                select: 'title problemLetter contestId',
+                populate: {
+                    path: 'contestId',
+                    select: 'contestKey'
+                }
+            })
+            .sort({ submittedAt: -1 });
+        res.json(submissions);
+    } catch (error) {
+        console.error("Error fetching submissions:", error);
+        res.status(500).json({ message: "Server error while fetching submissions." });
+    }
+});
+
 app.get('/api/scoreboard/:contestKey', auth, async (req, res) => {
 	try {
-		const contestKey = req.params;
-		const contestId = await Contest.findOne({contestKey:contestKey})
-		const contest = await Contest.findById(contestId).populate('problems');
+		const { contestKey } = req.params;
+		const contest = await Contest.findOne({ contestKey: contestKey }).populate('problems');
 		if (!contest) {
 			return res.status(404).json({ message: 'Contest not found' });
 		}
@@ -291,39 +407,37 @@ app.get('/api/scoreboard/:contestKey', auth, async (req, res) => {
 		const contestStartTime = new Date(contest.startTime);
 		const PENALTY_MINUTES = 10;
 
-		const submissions = await Submission.find({ problemId: { $in: contest.problems.map(p => p._id) } })
-			.populate('teamId', 'teamname')
-			.sort({ submittedAt: 'asc' });
+		const submissions = await Submission.find({ problemId: { $in: contest.problems.map(p => p._id) } }).sort({ submittedAt: 'asc' });
 
 		const teamScores = {};
+        const teams = await Team.find({});
+        for (const team of teams) {
+            if (team.role === 'admin') continue; // exclude admin from scoreboard
+            teamScores[team.teamname] = {
+                teamname: team.teamname,
+                problemsSolved: 0,
+                totalScore: 0,
+                totalTime: 0,
+                solvedProblems: {},
+                penaltyAttempts: {},
+            };
+        }
 
 		for (const sub of submissions) {
-			if (!sub.teamId) continue;
-			const teamId = sub.teamId._id.toString();
-			const problemId = sub.problemId.toString();
-
-			if (!teamScores[teamId]) {
-				teamScores[teamId] = {
-					teamname: sub.teamId.teamname,
-					problemsSolved: 0,
-					totalScore: 0,
-					totalTime: 0,
-					solvedProblems: {},
-					penaltyAttempts: {},
-				};
-			}
+			if (!sub.teamname || !teamScores[sub.teamname]) continue;
 			
-			const team = teamScores[teamId];
+			const problemId = sub.problemId.toString();
+            const team = teamScores[sub.teamname];
 
 			if (team.solvedProblems[problemId]) {
 				continue;
 			}
 
-			if (sub.status === 'Accepted') {
+			if (sub.verdict === 'Accepted') {
 				const problem = contest.problems.find(p => p._id.toString() === problemId);
 				if (!problem) continue;
 
-				const timeToSolve = (sub.submittedAt - contestStartTime) / (1000 * 60);
+				const timeToSolve = (new Date(sub.submittedAt) - contestStartTime) / (1000 * 60);
 				const penalty = (team.penaltyAttempts[problemId] || 0) * PENALTY_MINUTES;
 
 				team.problemsSolved++;
@@ -331,7 +445,7 @@ app.get('/api/scoreboard/:contestKey', auth, async (req, res) => {
 				team.totalTime += timeToSolve + penalty;
 				team.solvedProblems[problemId] = true;
 
-			} else {
+			} else if (sub.verdict && sub.verdict !== 'Accepted' && sub.verdict !== 'In Queue' && sub.verdict !== 'Processing') {
 				team.penaltyAttempts[problemId] = (team.penaltyAttempts[problemId] || 0) + 1;
 			}
 		}
@@ -346,7 +460,6 @@ app.get('/api/scoreboard/:contestKey', auth, async (req, res) => {
 		res.json(rankedScoreboard);
 
 	} catch (error) {
-		console.error("Error generating scoreboard:", error);
 		res.status(500).json({message:"Server error."});
 		}
 	});

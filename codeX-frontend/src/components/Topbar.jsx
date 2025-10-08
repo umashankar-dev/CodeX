@@ -70,7 +70,9 @@ const Topbar = ({ contest, problems, currentProblemLetter }) => {
             </div>
             <div className="contest-timer">
                 <span>Time Remaining: </span>
-                <span className="timer-display">{timeLeft}</span>
+                {(timeLeft && timeLeft == 'Contest Ended') ? 
+                    <span className="timer-display-ended">{timeLeft}</span>
+                : <span className="timer-display">{timeLeft}</span>}
             </div>
         </div>
     );
