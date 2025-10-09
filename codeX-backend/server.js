@@ -299,6 +299,19 @@ app.post('/api/submit', auth, async (req, res) => {
             return res.status(404).json({ message: "Problem not found." });
         }
 
+        const contest = await Contest.findById(problem.contestId);
+        if (!contest) {
+            return res.status(404).json({ message: "Associated contest not found." });
+        }
+
+        const contestStartTime = new Date(contest.startTime);
+        const contestEndTime = new Date(contestStartTime.getTime() + contest.duration * 60000);
+        const now = new Date();
+
+        if (now > contestEndTime) {
+            return res.status(403).json({ message: "The contest has ended. Submissions are no longer accepted." });
+        }
+        
         if (!problem.hiddenTestCases || problem.hiddenTestCases.length === 0) {
             return res.status(400).json({ message: "This problem has no hidden test cases and cannot be judged." });
         }

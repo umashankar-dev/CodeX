@@ -14,6 +14,7 @@ const ProblemPage = () => {
 	const [contest, setContest] = useState(null);
 	const [isLoading, setIsLoading] = useState(true);
 	const [submissionStatus, setSubmissionStatus] = useState('');
+    const [isContestOver, setIsContestOver] = useState(false);
 
 	const editorRef = useRef(null);
 	const pollIntervalRef = useRef(null);
@@ -29,6 +30,27 @@ const ProblemPage = () => {
 	const handleEditorDidMount = (editor, monaco) => {
 		editorRef.current = editor;
 	};
+    
+    useEffect(() => {
+        if (!contest) return;
+
+        const checkContestTime = () => {
+            const startTime = new Date(contest.startTime);
+            const endTime = new Date(startTime.getTime() + contest.duration * 60000); 
+            const now = new Date();
+
+            if (now > endTime) {
+                setIsContestOver(true);
+            }
+        };
+
+        // check immediately when component loads
+        checkContestTime();
+        const timeCheckInterval = setInterval(checkContestTime, 15000); // check every 15 seconds
+        // cleanup the interval when the component unmounts
+        return () => clearInterval(timeCheckInterval);
+    }, [contest]);
+
 
 	useEffect(() => {
 		const fetchProblem = async () => {
@@ -53,6 +75,12 @@ const ProblemPage = () => {
 
 	const handleSubmit = async (e) => {
 		e.preventDefault();
+
+        if (isContestOver) {
+            alert("The contest has ended. Submissions are no longer accepted.");
+            return;
+        }
+
 		if (pollIntervalRef.current) {
 			clearInterval(pollIntervalRef.current);
 		}
@@ -153,7 +181,9 @@ const ProblemPage = () => {
 								theme='vs-dark'
 								loading='...'
 							/>
-							<button type="submit" className="submit-code-btn">Submit</button>
+							<button type="submit" className="submit-code-btn" disabled={isContestOver}>
+                                {isContestOver ? 'Contest Over' : 'Submit'}
+                            </button>
 						</form>
 					</div>
 				</div>
