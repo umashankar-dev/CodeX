@@ -15,12 +15,15 @@ const ContestPage = () => {
         const fetchContests = async () => {
             setIsLoading(true);
             try {
-                const contestRes = await apiClient.get(`/api/contests/${contestKey}`);
+                const contestPromise = apiClient.get(`/api/contests/${contestKey}`);
+                const problemsPromise = apiClient.get(`/api/contests/${contestKey}/problems`);
+
+                const [contestRes, problemsRes] = await Promise.all([
+                    contestPromise,
+                    problemsPromise
+                ]);
                 setContest(contestRes.data);
-                if (new Date() >= new Date(contestRes.data.startTime)) {
-                    const response = await apiClient.get(`/api/contests/${contestKey}/problems`);
-                    setProblems(response.data)
-                }
+                setProblems(problemsRes.data);
                 
             } catch (error) {
                 console.log('Error while fetching problems',error)

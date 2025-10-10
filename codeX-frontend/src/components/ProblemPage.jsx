@@ -1,14 +1,22 @@
 import '../styles/ProblemPage.css';
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useMemo, useRef } from 'react';
 import { useParams } from 'react-router-dom';
 import { apiClient } from '../authStore';
 import Editor from '@monaco-editor/react';
 import Topbar from './Topbar';
 
+const languageOptions = [
+    { id: 71, name: 'Python', monacoName: 'python', defaultCode: '# Write your code here' },
+    { id: 54, name: 'C++', monacoName: 'cpp', defaultCode: '// Write your code here' },
+    { id: 62, name: 'Java', monacoName: 'java', defaultCode: '// Write your code here' },
+    { id: 93, name: 'JavaScript', monacoName: 'javascript', defaultCode: '// Write your code here' },
+    { id: 74, name: 'TypeScript', monacoName: 'typescript', defaultCode: '// Write your code here' }
+];
+
 const ProblemPage = () => {
 	const { contestKey, problemLetter } = useParams();
 	const [problem, setProblem] = useState(null);
-	const [languageId, setLanguageId] = useState(71);
+	const [languageId, setLanguageId] = useState(languageOptions[0].id);
 	const [output, setOutput] = useState(null);
 	const [allProblems, setAllProblems] = useState([]);
 	const [contest, setContest] = useState(null);
@@ -18,6 +26,11 @@ const ProblemPage = () => {
 
 	const editorRef = useRef(null);
 	const pollIntervalRef = useRef(null);
+
+    const currentLanguage = useMemo(() => 
+        languageOptions.find(lang => lang.id == languageId) || languageOptions[0], 
+        [languageId]
+    );
 
 	useEffect(() => {
 		return () => {
@@ -44,10 +57,8 @@ const ProblemPage = () => {
             }
         };
 
-        // check immediately when component loads
         checkContestTime();
-        const timeCheckInterval = setInterval(checkContestTime, 15000); // check every 15 seconds
-        // cleanup the interval when the component unmounts
+        const timeCheckInterval = setInterval(checkContestTime, 15000);
         return () => clearInterval(timeCheckInterval);
     }, [contest]);
 
@@ -169,15 +180,19 @@ const ProblemPage = () => {
 								value={languageId}
 								onChange={(e) => setLanguageId(e.target.value)}
 							>
-								<option value={71}>Python</option>
-								<option value={54}>C++</option>
-								<option value={62}>Java</option>
+								{languageOptions.map(lang => (
+                                    <option key={lang.id} value={lang.id}>
+                                        {lang.name}
+                                    </option>
+                                ))}
 							</select>
 							<Editor
 								height="60vh"
-								defaultValue='# Write your code here'
+                                key={currentLanguage.id}
+								defaultValue={currentLanguage.defaultCode}
 								onMount={handleEditorDidMount}
-								defaultLanguage='python'
+								// Dynamically set the language for syntax highlighting
+								language={currentLanguage.monacoName}
 								theme='vs-dark'
 								loading='...'
 							/>
