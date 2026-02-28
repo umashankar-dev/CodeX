@@ -46,9 +46,9 @@ function App() {
 					</ProtectedRoute>
 				} />
 				<Route path='/scoreboard' element={
-					<ProtectedRoute>
+					<AdminRoute>
 						<Scoreboard/>
-					</ProtectedRoute>
+					</AdminRoute>
 				} />
 				<Route path='/register' element={<Register/>} />
 				<Route path='/login' element={<Login />} />

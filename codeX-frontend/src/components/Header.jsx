@@ -24,9 +24,9 @@ const Header = () => {
                 <Link className='nav-link' to={"/"}>Home</Link>
                 <Link className='nav-link' to={"/contests"}>Contests</Link>
                 <Link className='nav-link' to={"/submissions"}>Submissions</Link>
-                <Link className='nav-link' to={"/scoreboard"}>Scoreboard</Link>
                 {team && team.role === 'admin' && (
                     <>
+			<Link className='nav-link' to={"/scoreboard"}>Scoreboard</Link>
                         <Link className='nav-link' to={"/create-contest"}>Create Contest</Link>
                         <Link className='nav-link' to={"/add-problem"}>Add Problem</Link>
                     </>                                        

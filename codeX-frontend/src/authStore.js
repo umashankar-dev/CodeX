@@ -3,7 +3,7 @@ import {jwtDecode} from 'jwt-decode';
 import axios from "axios";
 
 const apiClient = axios.create({
-    baseURL: 'http://localhost:3000/',
+    baseURL: '/',
 });
 
 const setAuthHeader = (token) => {
