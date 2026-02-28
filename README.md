@@ -1,8 +1,12 @@
 # CodeX
 
-CodeX is a full-stack online code execution platform. It leverages **Judge0** for secure, sandboxed code compilation and execution, **MongoDB** for database management, and a Node.js-based backend **(Express)** and **React** frontend.
+**CodeX** is a full-stack online code execution platform. It leverages **Judge0** for secure, sandboxed code compilation and execution, **MongoDB** for database management, and a **Node.js** based backend **(Express)** and **React** frontend.
 
 ## Demo
+
+https://github.com/user-attachments/assets/34b0a7d4-d5aa-494c-ac6e-afb62daa0ec7
+
+
 
 ##  Tech Stack
 * **Frontend:** React/Vite
