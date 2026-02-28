@@ -6,8 +6,6 @@
 
 https://github.com/user-attachments/assets/34b0a7d4-d5aa-494c-ac6e-afb62daa0ec7
 
-
-
 ##  Tech Stack
 * **Frontend:** React/Vite
 * **Backend:** Node.js (Express)
@@ -59,7 +57,7 @@ Create a .env file in the codeX-backend directory to store your environment vari
 cd codeX-backend
 touch .env
 ```
-Add the following fields to your newly created .env file (replace the JWT_SECRET with a secure string of your choice):
+Add the following fields to your newly created **.env** file (replace the **JWT_SECRET** with a secure string of your choice):
 
 ```bash
 PORT=3000
@@ -72,7 +70,7 @@ JUDGE0_API_URL=http://localhost:2358
 Download and configure the Judge0 execution engine.
 
 ```bash
-wget [https://github.com/judge0/judge0/releases/download/v1.13.1/judge0-v1.13.1.zip](https://github.com/judge0/judge0/releases/download/v1.13.1/judge0-v1.13.1.zip)
+wget https://github.com/judge0/judge0/releases/download/v1.13.1/judge0-v1.13.1.zip
 unzip judge0-v1.13.1.zip
 ```
 ---
